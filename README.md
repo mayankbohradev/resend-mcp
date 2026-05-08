@@ -11,6 +11,8 @@ An MCP server for the [Resend](https://resend.com/) platform. Send and receive e
 - **Received Emails** — List and read inbound emails. List and download received email attachments.
 - **Contacts** — Create, list, get, update, and remove contacts. Manage segment memberships and topic subscriptions. Supports custom contact properties.
 - **Broadcasts** — Create, send, list, get, update, and remove broadcast campaigns. Supports scheduling, personalization placeholders, and preview text.
+- **Templates** — Create, list, get, update, publish, duplicate, and remove reusable email templates.
+- **Visual Editor** — Compose broadcast and template content that renders live in the Resend dashboard. Agents appear as a named avatar in the editor while working.
 - **Domains** — Create, list, get, update, remove, and verify sender domains. Configure tracking, TLS, and sending/receiving capabilities.
 - **Segments** — Create, list, get, and remove audience segments.
 - **Topics** — Create, list, get, update, and remove subscription topics.
