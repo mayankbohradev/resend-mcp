@@ -8,6 +8,7 @@ import { runStdio } from './transports/stdio.js';
 
 const parsed = parseArgs(process.argv.slice(2));
 const config = resolveConfigOrExit(parsed, process.env);
+
 const serverOptions = {
   senderEmailAddress: config.senderEmailAddress,
   replierEmailAddresses: config.replierEmailAddresses,

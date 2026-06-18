@@ -1,26 +1,29 @@
 export type TransportMode = 'stdio' | 'http';
 
 /**
- * Stdio requires an API key at startup since it serves a single local user.
+ * Fields shared by every transport, resolved from argv + env.
  */
-export interface StdioConfig {
-  apiKey: string;
+interface BaseConfig {
   senderEmailAddress: string;
   replierEmailAddresses: string[];
-  transport: 'stdio';
   port: number;
+}
+
+/**
+ * Stdio requires an API key at startup since it serves a single local user.
+ */
+export interface StdioConfig extends BaseConfig {
+  apiKey: string;
+  transport: 'stdio';
 }
 
 /**
  * HTTP mode makes the API key optional at startup because each remote client
  * provides their own Resend API key via the Authorization: Bearer header.
  */
-export interface HttpConfig {
+export interface HttpConfig extends BaseConfig {
   apiKey?: string;
-  senderEmailAddress: string;
-  replierEmailAddresses: string[];
   transport: 'http';
-  port: number;
   /**
    * Host used for the SDK's DNS-rebinding protection. Undefined keeps the
    * localhost-only default. Set to '0.0.0.0' to disable Host validation when
