@@ -126,10 +126,10 @@ export function addEmailTools(
         ...(!senderEmailAddress
           ? {
               from: z
-                .email()
+                .string()
                 .nonempty()
                 .describe(
-                  'Sender email address. You MUST ask the user for this parameter. Under no circumstance provide it yourself',
+                  'Sender email address (e.g. "onboarding@resend.com" or "Acme <onboarding@resend.com>"). You MUST ask the user for this parameter. Under no circumstance provide it yourself',
                 ),
             }
           : {}),
