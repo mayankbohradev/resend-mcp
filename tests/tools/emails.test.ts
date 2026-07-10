@@ -170,10 +170,9 @@ describe('send-batch-emails idempotency key', () => {
     });
 
     expect(result.isError).toBeFalsy();
-    expect(batchSend).toHaveBeenCalledWith(
-      expect.any(Array),
-      { idempotencyKey: 'team-quota/123456789' },
-    );
+    expect(batchSend).toHaveBeenCalledWith(expect.any(Array), {
+      idempotencyKey: 'team-quota/123456789',
+    });
     expect(textOf(result)).toContain('Batch sent successfully');
   });
 
