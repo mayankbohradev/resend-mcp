@@ -16,6 +16,7 @@ Options:
                            Use 0.0.0.0 to disable Host validation behind a proxy/load balancer.
   --allowed-hosts <list>   Comma-separated Host allow-list (or MCP_ALLOWED_HOSTS)
   -h, --help               Show this help
+  -v, --version            Show the installed version
 
 Environment:
   RESEND_API_KEY           Required if --key not set
