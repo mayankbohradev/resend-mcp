@@ -195,3 +195,111 @@ describe('send-batch-emails idempotency key', () => {
     expect(batchSend).toHaveBeenCalledWith(expect.any(Array), undefined);
   });
 });
+
+describe('send-email custom headers', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    send.mockResolvedValue({
+      data: { id: 'email_1' },
+      error: null,
+    });
+  });
+
+  it('passes headers through to the SDK email payload', async () => {
+    const client = await makeClient();
+    const result = await client.callTool({
+      name: 'send-email',
+      arguments: {
+        from: 'Acme <onboarding@resend.dev>',
+        to: ['delivered@resend.dev'],
+        subject: 'hello',
+        text: 'world',
+        headers: {
+          'List-Unsubscribe': '<https://example.com/unsubscribe>',
+          'X-Entity-Ref-ID': 'order-123',
+        },
+      },
+    });
+
+    expect(result.isError).toBeFalsy();
+    expect(send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        headers: {
+          'List-Unsubscribe': '<https://example.com/unsubscribe>',
+          'X-Entity-Ref-ID': 'order-123',
+        },
+      }),
+      undefined,
+    );
+  });
+
+  it('omits headers from the SDK payload when not provided', async () => {
+    const client = await makeClient();
+    await client.callTool({
+      name: 'send-email',
+      arguments: {
+        from: 'onboarding@resend.dev',
+        to: ['delivered@resend.dev'],
+        subject: 'hello',
+        text: 'world',
+      },
+    });
+
+    const [payload] = send.mock.calls[0];
+    expect(payload).not.toHaveProperty('headers');
+  });
+});
+
+describe('send-batch-emails custom headers', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    batchSend.mockResolvedValue({
+      data: { data: [{ id: 'email_1' }, { id: 'email_2' }] },
+      error: null,
+    });
+  });
+
+  it('passes per-email headers through to the SDK batch payload', async () => {
+    const client = await makeClient();
+    const result = await client.callTool({
+      name: 'send-batch-emails',
+      arguments: {
+        emails: [
+          {
+            from: 'Acme <onboarding@resend.dev>',
+            to: ['foo@example.com'],
+            subject: 'hello',
+            text: 'one',
+            headers: {
+              'X-Entity-Ref-ID': 'batch-1',
+            },
+          },
+          {
+            from: 'Acme <onboarding@resend.dev>',
+            to: ['bar@example.com'],
+            subject: 'hello',
+            text: 'two',
+          },
+        ],
+      },
+    });
+
+    expect(result.isError).toBeFalsy();
+    expect(batchSend).toHaveBeenCalledWith(
+      [
+        expect.objectContaining({
+          to: ['foo@example.com'],
+          headers: {
+            'X-Entity-Ref-ID': 'batch-1',
+          },
+        }),
+        expect.objectContaining({
+          to: ['bar@example.com'],
+        }),
+      ],
+      undefined,
+    );
+    const [, secondEmail] = batchSend.mock.calls[0][0];
+    expect(secondEmail).not.toHaveProperty('headers');
+  });
+});
