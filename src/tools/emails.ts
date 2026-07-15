@@ -122,6 +122,12 @@ export function addEmailTools(
           .describe(
             'Topic ID for subscription-based sending. When set, the email respects contact subscription preferences for this topic.',
           ),
+        headers: z
+          .record(z.string(), z.string())
+          .optional()
+          .describe(
+            'Optional custom email headers as key/value pairs (e.g. {"List-Unsubscribe": "<https://example.com/unsubscribe>", "X-Entity-Ref-ID": "unique-id"}). Use for one-click unsubscribe, preventing Gmail threading, or other MIME headers Resend accepts.',
+          ),
         idempotencyKey: z
           .string()
           .max(256)
@@ -165,6 +171,7 @@ export function addEmailTools(
       attachments,
       tags,
       topicId,
+      headers,
       idempotencyKey,
     }) => {
       const fromEmailAddress = from ?? senderEmailAddress;
@@ -207,6 +214,7 @@ export function addEmailTools(
           value: string;
         }>;
         topicId?: string;
+        headers?: Record<string, string>;
       } = {
         to,
         subject,
@@ -271,6 +279,10 @@ export function addEmailTools(
 
       if (topicId) {
         emailRequest.topicId = topicId;
+      }
+
+      if (headers && Object.keys(headers).length > 0) {
+        emailRequest.headers = headers;
       }
 
       const response = await resend.emails.send(
@@ -1020,6 +1032,12 @@ export function addEmailTools(
                 .string()
                 .optional()
                 .describe('Topic ID for subscription-based sending'),
+              headers: z
+                .record(z.string(), z.string())
+                .optional()
+                .describe(
+                  'Optional custom email headers as key/value pairs (e.g. {"List-Unsubscribe": "<https://example.com/unsubscribe>", "X-Entity-Ref-ID": "unique-id"}).',
+                ),
             }),
           )
           .min(1)
@@ -1059,6 +1077,9 @@ export function addEmailTools(
         if (email.scheduledAt) request.scheduledAt = email.scheduledAt;
         if (email.tags && email.tags.length > 0) request.tags = email.tags;
         if (email.topicId) request.topicId = email.topicId;
+        if (email.headers && Object.keys(email.headers).length > 0) {
+          request.headers = email.headers;
+        }
 
         return request;
       });
