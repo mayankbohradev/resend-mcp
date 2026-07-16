@@ -89,6 +89,70 @@ describe('send-email from address format', () => {
   });
 });
 
+describe('replyTo address format', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    send.mockResolvedValue({
+      data: { id: 'email_1' },
+      error: null,
+    });
+    batchSend.mockResolvedValue({
+      data: { data: [{ id: 'email_1' }] },
+      error: null,
+    });
+  });
+
+  it.each([
+    'support@example.com',
+    'Support Team <support@example.com>',
+  ])('passes replyTo through send-email: %s', async (replyTo) => {
+    const client = await makeClient();
+    const result = await client.callTool({
+      name: 'send-email',
+      arguments: {
+        from: 'onboarding@resend.dev',
+        to: ['delivered@resend.dev'],
+        replyTo: [replyTo],
+        subject: 'hello',
+        text: 'world',
+      },
+    });
+
+    expect(result.isError).toBeFalsy();
+    expect(send).toHaveBeenCalledWith(
+      expect.objectContaining({ replyTo: [replyTo] }),
+      undefined,
+    );
+  });
+
+  it.each([
+    'support@example.com',
+    'Support Team <support@example.com>',
+  ])('passes replyTo through send-batch-emails: %s', async (replyTo) => {
+    const client = await makeClient();
+    const result = await client.callTool({
+      name: 'send-batch-emails',
+      arguments: {
+        emails: [
+          {
+            from: 'onboarding@resend.dev',
+            to: ['delivered@resend.dev'],
+            replyTo: [replyTo],
+            subject: 'hello',
+            text: 'world',
+          },
+        ],
+      },
+    });
+
+    expect(result.isError).toBeFalsy();
+    expect(batchSend).toHaveBeenCalledWith(
+      [expect.objectContaining({ replyTo: [replyTo] })],
+      undefined,
+    );
+  });
+});
+
 describe('send-email idempotency key', () => {
   beforeEach(() => {
     vi.clearAllMocks();
