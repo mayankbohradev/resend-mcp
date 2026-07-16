@@ -149,10 +149,10 @@ export function addEmailTools(
         ...(replierEmailAddresses.length === 0
           ? {
               replyTo: z
-                .array(z.email())
+                .array(z.string())
                 .optional()
                 .describe(
-                  'Optional email addresses for the email readers to reply to. You MUST ask the user for this parameter. Under no circumstance provide it yourself',
+                  'Optional email addresses for the email readers to reply to (e.g. "support@example.com" or "Support Team <support@example.com>"). You MUST ask the user for this parameter. Under no circumstance provide it yourself',
                 ),
             }
           : {}),
@@ -1005,9 +1005,11 @@ export function addEmailTools(
                   'Sender email address. Falls back to the configured default sender if not provided.',
                 ),
               replyTo: z
-                .array(z.email())
+                .array(z.string())
                 .optional()
-                .describe('Reply-to email addresses'),
+                .describe(
+                  'Reply-to email addresses (e.g. "support@example.com" or "Support Team <support@example.com>")',
+                ),
               cc: z.array(z.email()).optional().describe('CC email addresses'),
               bcc: z
                 .array(z.email())
