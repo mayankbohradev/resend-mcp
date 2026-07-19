@@ -1015,12 +1015,6 @@ export function addEmailTools(
                 .array(z.email())
                 .optional()
                 .describe('BCC email addresses'),
-              scheduledAt: z
-                .string()
-                .optional()
-                .describe(
-                  "Optional schedule time. Uses natural language (e.g., 'tomorrow at 10am') or ISO 8601.",
-                ),
               tags: z
                 .array(
                   z.object({
@@ -1076,7 +1070,6 @@ export function addEmailTools(
         if (email.html) request.html = email.html;
         if (email.cc) request.cc = email.cc;
         if (email.bcc) request.bcc = email.bcc;
-        if (email.scheduledAt) request.scheduledAt = email.scheduledAt;
         if (email.tags && email.tags.length > 0) request.tags = email.tags;
         if (email.topicId) request.topicId = email.topicId;
         if (email.headers && Object.keys(email.headers).length > 0) {

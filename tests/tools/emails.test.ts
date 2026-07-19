@@ -260,6 +260,49 @@ describe('send-batch-emails idempotency key', () => {
   });
 });
 
+describe('send-batch-emails scheduling', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    batchSend.mockResolvedValue({
+      data: { data: [{ id: 'email_1' }] },
+      error: null,
+    });
+  });
+
+  it('does not advertise scheduledAt in the batch email input schema', async () => {
+    const client = await makeClient();
+    const { tools } = await client.listTools();
+    const batchTool = tools.find((tool) => tool.name === 'send-batch-emails');
+
+    expect(batchTool).toBeDefined();
+    expect(batchTool?.inputSchema).not.toHaveProperty(
+      'properties.emails.items.properties.scheduledAt',
+    );
+  });
+
+  it('does not pass stale scheduledAt input to the SDK batch payload', async () => {
+    const client = await makeClient();
+    const result = await client.callTool({
+      name: 'send-batch-emails',
+      arguments: {
+        emails: [
+          {
+            from: 'onboarding@resend.dev',
+            to: ['foo@example.com'],
+            subject: 'hello',
+            text: 'one',
+            scheduledAt: 'tomorrow at 10am',
+          },
+        ],
+      },
+    });
+
+    expect(result.isError).toBeFalsy();
+    const [[payload]] = batchSend.mock.calls[0];
+    expect(payload).not.toHaveProperty('scheduledAt');
+  });
+});
+
 describe('send-email custom headers', () => {
   beforeEach(() => {
     vi.clearAllMocks();
